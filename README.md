@@ -1,6 +1,9 @@
 siproxd-orange
 ==============
 
+**L'auteur de ce projet ne travaille plus dessus suite à des pressions d'Orange.** 
+Voir [ce message sur son blog](http://x0r.fr/blog/47) pour plus d'information.
+
 **Lisez impérativement ce document.**  Il contient des instructions importantes 
 afin de faire fonctionner ce plugin.
 
@@ -16,7 +19,7 @@ Description
 -----------
 
 Ceci est un projet de plugin pour siproxd afin de permettre à un client SIP de 
-s'authentifier et de passer des appels via le [service Livephone d'Orange] [2].
+s'authentifier et de passer des appels via le [service Livephone d'Orange](http://assistance.orange.fr/l-application-livephone-sur-pc-4898.php).
 
 Les serveurs SIP du Livephone utilisent une version modifiée de la RFC 3261, ce
 qui rend de fait impossible la compatibilité de leur service avec autre chose
@@ -33,7 +36,7 @@ la Livebox, mais via SIP.
 
 
 Pour les détails techniques de l'implémentation, vous pouvez lire l'article à 
-l'adresse <http://x0r.fr/blog/36>.
+l'adresse http://x0r.fr/blog/36.
 
 
 Compilation
@@ -49,7 +52,7 @@ Avant de commencer, il vous faudra installer :
  * siproxd : deux choix possibles :
 
    * siproxd (0.8.2 ou supérieure, lorsque cette version existera), si
-     possible, ou [cette snapshot patchée] [5], ou
+     possible, ou [cette snapshot patchée](http://x0r.fr/blogstuff/siproxd-15Sep2014-patched.tar.gz), ou
    * un exemplaire de l'archive des sources de siproxd (snapshot du 26 mai 2014
      ou postérieure) afin de compiler ce plugin (les fichiers .h nécessaires ne
      sont généralement pas distribués avec le binaire).
@@ -65,13 +68,12 @@ suffit, par exemple.
 
 ### Compiler siproxd
 
-Pour que le plugin fonctionne, il vous faudra compiler [une snapshot récente]
-[1] (postérieure au 26 mai 2014) ou installer la version 0.8.2 de siproxd
+Pour que le plugin fonctionne, il vous faudra compiler [une snapshot récente](http://siproxd.sourceforge.net/index.php?op=snapshot) (postérieure au 26 mai 2014) ou installer la version 0.8.2 de siproxd
 lorsque cette version existera.
 
 Étant donné que ces snapshots de siproxd ont besoin de patchs supplémentaires
 sur certains systèmes d'exploitation, je vous propose également [ma version
-patchée de siproxd] [5] qui devrait également fonctionner.
+patchée de siproxd](http://x0r.fr/blogstuff/siproxd-15Sep2014-patched.tar.gz) qui devrait également fonctionner.
 
 Dans le cas d'une snapshot, compilez et installez les sources en vous référant
 aux instructions fournies.
@@ -130,7 +132,7 @@ installés les plugins (y compris celui-ci).
 Configuration des clients
 -------------------------
 
-Consultez la [matrice de compatibilité] [3] dans le [wiki] [4] du projet.  
+Consultez la [matrice de compatibilité](https://bitbucket.org/xtab/siproxd_orange/wiki/Home) dans le [wiki](https://bitbucket.org/xtab/siproxd_orange/wiki/Home) du projet.
 Celui-ci regroupe toutes les instructions pour les clients SIP testés avec ce 
 logiciel.
 
@@ -177,9 +179,3 @@ Limitations
    généralement le problème.  Si vous n'entendez pas la tonalité après avoir
    composé un numéro, c'est généralement mauvais signe.  Je n'ai pas rencontré
    ce problème avec d'autres clients SIP pour le moment.
-
-[1]: http://siproxd.sourceforge.net/index.php?op=snapshot
-[2]: http://assistance.orange.fr/l-application-livephone-sur-pc-4898.php
-[3]: https://bitbucket.org/xtab/siproxd_orange/wiki/Home
-[4]: https://bitbucket.org/xtab/siproxd_orange/wiki/Home
-[5]: http://x0r.fr/blogstuff/siproxd-15Sep2014-patched.tar.gz
