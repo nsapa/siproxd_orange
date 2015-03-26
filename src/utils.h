@@ -45,7 +45,7 @@
 /* Declare replacement for htole32 and le32toh for older glibcs */
 uint32_t byte_swap_32(uint32_t i);
 /* Declare replacement for htole16 and le16toh for older glibcs */
-uint16_t byte_swap_16(uint16_t i)
+uint16_t byte_swap_16(uint16_t i);
 
 #ifdef WORDS_BIGENDIAN
 #define htole32(x) byte_swap_32(x)

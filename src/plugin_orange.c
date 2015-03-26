@@ -23,6 +23,7 @@
 
 #include "config.h"
 
+#include <assert.h>
 #include <string.h>
 
 #include <sys/types.h>
@@ -54,6 +55,7 @@ extern struct siproxd_config configuration;
 static struct plugin_config {
    char *username;
    char *password;
+   int   force_max_expiry_time;
 } plugin_cfg;
 
 /* SIP parameters storage */
@@ -61,8 +63,12 @@ static struct sip_params* params;
 
 /* Instructions for config parser */
 static cfgopts_t plugin_cfg_opts[] = {
-   { "plugin_orange_username",      TYP_STRING, &plugin_cfg.username,         {0, NULL} },
-   { "plugin_orange_password",      TYP_STRING, &plugin_cfg.password,         {0, NULL} },
+   { "plugin_orange_username",
+      TYP_STRING, &plugin_cfg.username,            {0, NULL} },
+   { "plugin_orange_password",
+      TYP_STRING, &plugin_cfg.password,            {0, NULL} },
+   { "plugin_orange_force_max_expiry_time", 
+      TYP_INT4, &plugin_cfg.force_max_expiry_time, {0, NULL} },
    {0, 0, 0}
 };
 
@@ -117,7 +123,10 @@ int  PLUGIN_INIT(plugin_def_t *plugin_def) {
       return STS_FAILURE;
    }
 
-
+   if (plugin_cfg.force_max_expiry_time > 3600) {
+      WARN("capping plugin_orange_force_max_expiry_time at 3600 seconds");
+      plugin_cfg.force_max_expiry_time = 3600;
+   }
 
    /* connect to Orange auth server */
    INFO("logging in");
@@ -481,17 +490,19 @@ static void plugin_orange_set_contact_expiry(sip_ticket_t *ticket, int value)
    osip_uri_t *c_uri;
    osip_generic_param_t *p;
    char *str;
-   int i, j;
+   int num_contacts, i, j;
 
    /* sanitize value */
    value = (value > 3600) ? 3600 : value;
    sprintf(value_str, "%d", value);
 
+
    /* iterate over each Contact header in message */
-   for (i = 0; ; i++) {
+   num_contacts = osip_list_size(&ticket->sipmsg->contacts);
+
+   for (i = 0; i < num_contacts; i++) {
       osip_message_get_contact(ticket->sipmsg, i, &contact);
-      if (contact == NULL)
-         break;
+      assert(contact != NULL);
       
       osip_contact_init(&ct2);
       osip_uri_clone(osip_contact_get_url(contact), &c_uri);
@@ -508,10 +519,12 @@ static void plugin_orange_set_contact_expiry(sip_ticket_t *ticket, int value)
             osip_contact_param_add(ct2, strdup(p->gname), strdup(p->gvalue));
       }
 
-      osip_list_remove(&ticket->sipmsg->contacts, 0);
       osip_contact_to_str(ct2, &str);
       osip_message_set_contact(ticket->sipmsg, str);
+   }
 
+   for (j = 0; j < num_contacts; j++) {
+      osip_list_remove(&ticket->sipmsg->contacts, 0);
    }
 }
 
@@ -538,6 +551,13 @@ static int plugin_orange_post_proxy_responses(sip_ticket_t *ticket)
       int min_expires = -1;
       int i, j;
       osip_contact_t* contact;
+
+      /* if we are forcing a minimum expiry time, use it here too */
+      if (plugin_cfg.force_max_expiry_time > 0) {
+         DEBUGC(DBCLASS_PLUGIN, "forcing minimum expiry time to %d", 
+               plugin_cfg.force_max_expiry_time);
+         min_expires = plugin_cfg.force_max_expiry_time;
+      }
 
       /* iterate over each Contact header in message */
       for (i = 0; ; i++)
@@ -571,9 +591,22 @@ static int plugin_orange_post_proxy_responses(sip_ticket_t *ticket)
          }
       }
 
+      /* force ridiculously short expiry times to 60 seconds (some PBXes really
+       * don't like such short values otherwise), but don't touch if expires=0
+       * since this means a mapping is being removed */
+      if (min_expires > 0 && min_expires < 60) {
+         DEBUGC(DBCLASS_PLUGIN, "forcing expires=60");
+         min_expires = 60;
+      }
+
       if (min_expires == -1)
          DEBUGC(DBCLASS_PLUGIN, "no Contact header with expiry info found");
+      else if (min_expires == 0)
+         DEBUGC(DBCLASS_PLUGIN, "found expires=0, not rewriting");
       else {
+         /* filter silly values */
+         min_expires = (min_expires < 0) ? 3600 : min_expires;
+
          DEBUGC(DBCLASS_PLUGIN, "minimum expiry time is %d s", min_expires);
          plugin_orange_set_contact_expiry(ticket, min_expires);
       }

@@ -48,7 +48,7 @@ uint16_t byte_swap_16(uint16_t i)
 {
    uint16_t result;
    result = (i & 0x00ff) << 8
-          | (i & 0xff00) >> 8
+          | (i & 0xff00) >> 8;
    return result;
 }
 

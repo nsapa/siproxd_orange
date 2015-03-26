@@ -1,4 +1,4 @@
-AC_INIT([siproxd_orange], [0.2], [http://code.x0r.fr/siproxd_orange/issues], [siproxd_orange], [http://code.x0r.fr/siproxd_orange])
+AC_INIT([siproxd_orange], [0.2.1], [http://code.x0r.fr/siproxd_orange/issues], [siproxd_orange], [http://code.x0r.fr/siproxd_orange])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_HEADERS([src/config.h])
 AM_INIT_AUTOMAKE([foreign -Wall -Werror dist-bzip2 subdir-objects])

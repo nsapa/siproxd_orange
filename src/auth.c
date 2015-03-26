@@ -394,6 +394,7 @@ int auth_step2(CURL* curl, struct step1_result* s1r,
       struct sip_params** p_s2r)
 {
    char* postdata;
+   char curl_errbuf[CURL_ERROR_SIZE] = "";
    size_t content_length;
 
    int ret, result = 0;
@@ -401,9 +402,9 @@ int auth_step2(CURL* curl, struct step1_result* s1r,
    struct safe_string response;
    struct sip_params* s2r;
 
-   const char fake_os_name[] = "Windows";
-   const char fake_os_ver[]  = "XP";
-   const char fake_ua_ver[]  = "2.5.8";
+   const char fake_os_name[] = "Android";
+   const char fake_os_ver[]  = "5.0";
+   const char fake_ua_ver[]  = "2.6.0";
    const char fake_lang[]    = "fr";
    const char fake_mode[]    = "Nominal";
 
@@ -453,9 +454,11 @@ int auth_step2(CURL* curl, struct step1_result* s1r,
    curl_easy_setopt(curl, CURLOPT_USERAGENT, "");
    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, auth_step1_write_callback);
    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+   curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1);
+   curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, curl_errbuf);
 
    if ((ret = curl_easy_perform(curl))) {
-      fprintf(stderr, "auth_step2: %s\n", curl_easy_strerror(ret));
+      fprintf(stderr, "auth_step2: %s\n", curl_errbuf);
       result = 1;
       goto err_2;
    }
